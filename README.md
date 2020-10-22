@@ -13,7 +13,7 @@
 - Для установки просто создай программу Z_DDIC_FINDER и вставь в нее код.
 
  Пример поиска типа таблицы диапазона данных MATNR
-!(http://abap4.ru/wp-content/uploads/2020/10/ddic.png)
+(http://abap4.ru/wp-content/uploads/2020/10/ddic.png)
 
  Пример поиска структуры с BKPF ключом
 !(http://abap4.ru/wp-content/uploads/2020/10/ddic2.png)
