@@ -13,7 +13,7 @@
 - Для установки просто создай программу Z_DDIC_FINDER и вставь в нее код.
 
  Пример поиска типа таблицы диапазона данных MATNR
-![](//i.ibb.co/KxdYB0M/ddic.png)
+![Range MATNR](https://i.ibb.co/KxdYB0M/ddic.png)
 
  Пример поиска структуры с BKPF ключом
-![](//i.ibb.co/HGdDgjy/ddic2.png)
+![Key BKPF](https://i.ibb.co/HGdDgjy/ddic2.png)
