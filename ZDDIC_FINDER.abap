@@ -1,11 +1,11 @@
 *&---------------------------------------------------------------------*
-*& Report ZDDIC_FINDER
-*& Поиск по ABAP-словарю
+*& Report ZBC_DDIC_FINDER
+*& ABAP Dictionary object finder tool
 *&---------------------------------------------------------------------*
-*& Сайт программы: http://abap4.ru/?p=707
-*& Разработчик: admin@abap4.ru
+*& Repository: https://github.com/coreline/ZDDIC_FINDER
+*& Developer: admin@abap4.ru
 *&---------------------------------------------------------------------*
-REPORT ZDDIC_FINDER.
+REPORT zddic_finder.
 
 TABLES: tadir, dd01l, dd01t, dd02l, dd03l, dd02t, dd04t, dd40l, dd40t.
 
@@ -111,71 +111,148 @@ FORM init.
 ENDFORM.
 
 FORM init_text.
-  PERFORM set_frame_text USING 'SEL' 'ABAP-словарь'.
-  PERFORM set_param_text USING f_doma 'Домен'.
-  PERFORM set_param_text USING f_dtel 'Элемент данных'.
-  PERFORM set_param_text USING f_tabl 'Таблица / структура'.
-  PERFORM set_param_text USING f_ttyp 'Тип таблицы'.
-  PERFORM set_param_text USING f_srng 'Структура диапазона'.
-  PERFORM set_param_text USING f_trng 'Тип таблицы диапазона'.
+  CASE sy-langu.
+    WHEN 'R'. " Russian
+      PERFORM set_title USING 'Поиск по ABAP-словарю'.
 
-  PERFORM set_frame_text USING 'DOM' 'Параметры домена'.
-  PERFORM set_param_text USING s_dom_nm 'Домен'.
-  PERFORM set_param_text USING s_dom_tx 'Краткое описание'.
-  PERFORM set_param_text USING s_dom_dt 'Тип данных в ABAP-словаре'.
-  PERFORM set_param_text USING s_dom_dl 'Длина (число знаков)'.
-  PERFORM set_param_text USING s_dom_ol 'Длина вывода'.
-  PERFORM set_param_text USING s_dom_dc 'Число десятичных разрядов'.
-  PERFORM set_param_text USING s_dom_lc 'Разрешить строчные буквы'.
-  PERFORM set_param_text USING s_dom_sf 'Просмотр знака +/-'.
+      PERFORM set_frame_text USING 'SEL' 'ABAP-словарь'.
+      PERFORM set_param_text USING f_doma 'Домен'.
+      PERFORM set_param_text USING f_dtel 'Элемент данных'.
+      PERFORM set_param_text USING f_tabl 'Таблица / структура'.
+      PERFORM set_param_text USING f_ttyp 'Тип таблицы'.
+      PERFORM set_param_text USING f_srng 'Структура диапазона'.
+      PERFORM set_param_text USING f_trng 'Тип таблицы диапазона'.
 
-  PERFORM set_frame_text USING 'ITM' 'Параметры элемента данных'.
-  PERFORM set_param_text USING s_elm_nm 'Элемент данных'.
-  PERFORM set_param_text USING s_elm_tx 'Краткое описание'.
-  PERFORM set_param_text USING s_elm_tr 'Заголовок'.
-  PERFORM set_param_text USING s_elm_ts 'Краткая метка поля'.
-  PERFORM set_param_text USING s_elm_tm 'Средняя метка поля'.
-  PERFORM set_param_text USING s_elm_tl 'Длинная метка поля'.
+      PERFORM set_frame_text USING 'DOM' 'Параметры домена'.
+      PERFORM set_param_text USING s_dom_nm 'Домен'.
+      PERFORM set_param_text USING s_dom_tx 'Краткое описание'.
+      PERFORM set_param_text USING s_dom_dt 'Тип данных в ABAP-словаре'.
+      PERFORM set_param_text USING s_dom_dl 'Длина (число знаков)'.
+      PERFORM set_param_text USING s_dom_ol 'Длина вывода'.
+      PERFORM set_param_text USING s_dom_dc 'Число десятичных разрядов'.
+      PERFORM set_param_text USING s_dom_lc 'Разрешить строчные буквы'.
+      PERFORM set_param_text USING s_dom_sf 'Просмотр знака +/-'.
 
-  PERFORM set_frame_text USING 'STR' 'Параметры таблицы / структуры'.
-  PERFORM set_param_text USING s_str_nm 'Имя таблицы / структуры'.
-  PERFORM set_param_text USING s_str_tx 'Краткое описание'.
+      PERFORM set_frame_text USING 'ITM' 'Параметры элемента данных'.
+      PERFORM set_param_text USING s_elm_nm 'Элемент данных'.
+      PERFORM set_param_text USING s_elm_tx 'Краткое описание'.
+      PERFORM set_param_text USING s_elm_tr 'Заголовок'.
+      PERFORM set_param_text USING s_elm_ts 'Краткая метка поля'.
+      PERFORM set_param_text USING s_elm_tm 'Средняя метка поля'.
+      PERFORM set_param_text USING s_elm_tl 'Длинная метка поля'.
 
-  PERFORM set_frame_text USING 'TAB' 'Параметры типа таблицы'.
-  PERFORM set_param_text USING s_tab_nm 'Имя типа таблицы'.
-  PERFORM set_param_text USING s_tab_tx 'Краткое описание'.
-  PERFORM set_param_text USING s_tab_rt 'Тип строки'.
+      PERFORM set_frame_text USING 'STR' 'Параметры таблицы / структуры'.
+      PERFORM set_param_text USING s_str_nm 'Имя таблицы / структуры'.
+      PERFORM set_param_text USING s_str_tx 'Краткое описание'.
 
-  PERFORM set_frame_text USING 'RGT' 'Параметры типа таблицы диапазона'.
-  PERFORM set_param_text USING s_rgt_nm 'Имя типа таблицы'.
-  PERFORM set_param_text USING s_rgt_tx 'Краткое описание'.
+      PERFORM set_frame_text USING 'TAB' 'Параметры типа таблицы'.
+      PERFORM set_param_text USING s_tab_nm 'Имя типа таблицы'.
+      PERFORM set_param_text USING s_tab_tx 'Краткое описание'.
+      PERFORM set_param_text USING s_tab_rt 'Тип строки'.
 
-  PERFORM set_frame_text USING 'RGS' 'Параметры структуры диапазона'.
-  PERFORM set_param_text USING s_rgs_nm 'Имя структуры'.
-  PERFORM set_param_text USING s_rgs_tx 'Краткое описание'.
+      PERFORM set_frame_text USING 'RGT' 'Параметры типа таблицы диапазона'.
+      PERFORM set_param_text USING s_rgt_nm 'Имя типа таблицы'.
+      PERFORM set_param_text USING s_rgt_tx 'Краткое описание'.
 
-  PERFORM set_frame_text USING 'RNG' 'Параметры LIGH/LOW-компонентов'.
-  PERFORM set_param_text USING s_rng_en 'Имя элемента данных'.
-  PERFORM set_param_text USING s_rng_dn 'Имя домена'.
-  PERFORM set_param_text USING s_rng_dt 'Тип данных в ABAP-словаре'.
-  PERFORM set_param_text USING s_rng_dl 'Длина (число знаков)'.
-  PERFORM set_param_text USING s_rng_dc 'Число десятичных разрядов'.
+      PERFORM set_frame_text USING 'RGS' 'Параметры структуры диапазона'.
+      PERFORM set_param_text USING s_rgs_nm 'Имя структуры'.
+      PERFORM set_param_text USING s_rgs_tx 'Краткое описание'.
 
-  PERFORM set_frame_text USING 'SCM' 'Поля структуры'.
-  PERFORM set_param_text USING p_scm_c0 'Имя поля'.
-  PERFORM set_param_text USING p_scm_e0 'Элемент данных'.
-  PERFORM set_param_text USING p_scm_t0 'Тип данных'.
-  PERFORM set_param_text USING p_scm_l0 'Длина'.
-  PERFORM set_param_text USING p_scm_d0 'ДесРазряды'.
-  PERFORM set_param_text USING s_scm_cn 'Количество полей'.
-  PERFORM set_param_text USING p_scm_so 'Строгий порядок полей'.
+      PERFORM set_frame_text USING 'RNG' 'Параметры LIGH/LOW-компонентов'.
+      PERFORM set_param_text USING s_rng_en 'Имя элемента данных'.
+      PERFORM set_param_text USING s_rng_dn 'Имя домена'.
+      PERFORM set_param_text USING s_rng_dt 'Тип данных в ABAP-словаре'.
+      PERFORM set_param_text USING s_rng_dl 'Длина (число знаков)'.
+      PERFORM set_param_text USING s_rng_dc 'Число десятичных разрядов'.
 
-  PERFORM set_frame_text USING 'DIS' 'Параметры поиска'.
-  PERFORM set_param_text USING p_langu 'Язык'.
-  PERFORM set_param_text USING p_limit 'Макс. число совпадений'.
-  PERFORM set_param_text USING s_devcls 'Пакет'.
-  PERFORM set_param_text USING p_as4loc 'Статус активации объекта'.
-  PERFORM set_param_text USING p_as4ver 'Версия записи'.
+      PERFORM set_frame_text USING 'SCM' 'Поля структуры'.
+      PERFORM set_param_text USING p_scm_c0 'Имя поля'.
+      PERFORM set_param_text USING p_scm_e0 'Элемент данных'.
+      PERFORM set_param_text USING p_scm_t0 'Тип данных'.
+      PERFORM set_param_text USING p_scm_l0 'Длина'.
+      PERFORM set_param_text USING p_scm_d0 'ДесРазряды'.
+      PERFORM set_param_text USING s_scm_cn 'Количество полей'.
+      PERFORM set_param_text USING p_scm_so 'Строгий порядок полей'.
+
+      PERFORM set_frame_text USING 'DIS' 'Параметры поиска'.
+      PERFORM set_param_text USING p_langu 'Язык'.
+      PERFORM set_param_text USING p_limit 'Макс. число совпадений'.
+      PERFORM set_param_text USING s_devcls 'Пакет'.
+      PERFORM set_param_text USING p_as4loc 'Статус активации объекта'.
+      PERFORM set_param_text USING p_as4ver 'Версия записи'.
+    WHEN OTHERS.
+      PERFORM set_title USING 'Objects in the ABAP Dictionary'.
+
+      PERFORM set_frame_text USING 'SEL' 'ABAP Dictionary'.
+      PERFORM set_param_text USING f_doma 'Domain'.
+      PERFORM set_param_text USING f_dtel 'Data element'.
+      PERFORM set_param_text USING f_tabl 'Table'.
+      PERFORM set_param_text USING f_ttyp 'Table type'.
+      PERFORM set_param_text USING f_srng 'Ranges'.
+      PERFORM set_param_text USING f_trng 'Ranges table'.
+
+      PERFORM set_frame_text USING 'DOM' 'Domain parameters'.
+      PERFORM set_param_text USING s_dom_nm 'Domain'.
+      PERFORM set_param_text USING s_dom_tx 'Short description'.
+      PERFORM set_param_text USING s_dom_dt 'Data type'.
+      PERFORM set_param_text USING s_dom_dl 'No. characters'.
+      PERFORM set_param_text USING s_dom_ol 'Output length'.
+      PERFORM set_param_text USING s_dom_dc 'Decimal places'.
+      PERFORM set_param_text USING s_dom_lc 'Lower case'.
+      PERFORM set_param_text USING s_dom_sf 'Sign'.
+
+      PERFORM set_frame_text USING 'ITM' 'Data element parameters'.
+      PERFORM set_param_text USING s_elm_nm 'Data element'.
+      PERFORM set_param_text USING s_elm_tx 'Short description'.
+      PERFORM set_param_text USING s_elm_tr 'Heading'.
+      PERFORM set_param_text USING s_elm_ts 'Short text'.
+      PERFORM set_param_text USING s_elm_tm 'Medium text'.
+      PERFORM set_param_text USING s_elm_tl 'Long text'.
+
+      PERFORM set_frame_text USING 'STR' 'Table parameters'.
+      PERFORM set_param_text USING s_str_nm 'Table name'.
+      PERFORM set_param_text USING s_str_tx 'Short description'.
+
+      PERFORM set_frame_text USING 'TAB' 'Table type parameters'.
+      PERFORM set_param_text USING s_tab_nm 'Table name'.
+      PERFORM set_param_text USING s_tab_tx 'Short description'.
+      PERFORM set_param_text USING s_tab_rt 'Row type'.
+
+      PERFORM set_frame_text USING 'RGT' 'Ranges table parameters'.
+      PERFORM set_param_text USING s_rgt_nm 'Ranges table type'.
+      PERFORM set_param_text USING s_rgt_tx 'Short description'.
+
+      PERFORM set_frame_text USING 'RGS' 'Ranges parameters'.
+      PERFORM set_param_text USING s_rgs_nm 'Structure'.
+      PERFORM set_param_text USING s_rgs_tx 'Short description'.
+
+      PERFORM set_frame_text USING 'RNG' 'LIGH/LOW components'.
+      PERFORM set_param_text USING s_rng_en 'Data element'.
+      PERFORM set_param_text USING s_rng_dn 'Domain'.
+      PERFORM set_param_text USING s_rng_dt 'Data type'.
+      PERFORM set_param_text USING s_rng_dl 'No. characters'.
+      PERFORM set_param_text USING s_rng_dc 'Decimal places'.
+
+      PERFORM set_frame_text USING 'SCM' 'Structure components'.
+      PERFORM set_param_text USING p_scm_c0 'Component'.
+      PERFORM set_param_text USING p_scm_e0 'Component type'.
+      PERFORM set_param_text USING p_scm_t0 'Data type'.
+      PERFORM set_param_text USING p_scm_l0 'Length'.
+      PERFORM set_param_text USING p_scm_d0 'Dec. places'.
+      PERFORM set_param_text USING s_scm_cn 'Components count'.
+      PERFORM set_param_text USING p_scm_so 'Strict field order'.
+
+      PERFORM set_frame_text USING 'DIS' 'Search options'.
+      PERFORM set_param_text USING p_langu 'Language'.
+      PERFORM set_param_text USING p_limit 'Maximum No. of Hits'.
+      PERFORM set_param_text USING s_devcls 'Package'.
+      PERFORM set_param_text USING p_as4loc 'Activation status'.
+      PERFORM set_param_text USING p_as4ver 'Version'.
+  ENDCASE.
+ENDFORM.
+
+FORM set_title USING iv_text TYPE clike.
+  SET TITLEBAR '%_T' OF PROGRAM 'RSSYSTDB' WITH iv_text.
 ENDFORM.
 
 FORM set_frame_text USING iv_name TYPE clike
