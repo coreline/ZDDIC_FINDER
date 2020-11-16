@@ -22,6 +22,9 @@ SELECTION-SCREEN BEGIN OF BLOCK table WITH FRAME TITLE text-tab.
 SELECT-OPTIONS s_tab_nm FOR dd40l-typename NO-EXTENSION NO INTERVALS.
 SELECT-OPTIONS s_tab_tx FOR dd40t-ddtext NO-EXTENSION NO INTERVALS.
 SELECT-OPTIONS s_tab_rt FOR dd40l-rowtype NO-EXTENSION NO INTERVALS.
+SELECT-OPTIONS s_tab_dt FOR dd40l-datatype NO-EXTENSION NO INTERVALS.
+SELECT-OPTIONS s_tab_dl FOR dd40l-leng NO-EXTENSION.
+SELECT-OPTIONS s_tab_dc FOR dd40l-decimals NO-EXTENSION.
 SELECTION-SCREEN END OF BLOCK table.
 
 SELECTION-SCREEN BEGIN OF BLOCK structure WITH FRAME TITLE text-str.
@@ -149,6 +152,9 @@ FORM init_text.
       PERFORM set_param_text USING s_tab_nm 'Имя типа таблицы'.
       PERFORM set_param_text USING s_tab_tx 'Краткое описание'.
       PERFORM set_param_text USING s_tab_rt 'Тип строки'.
+      PERFORM set_param_text USING s_tab_dt 'Тип данных в ABAP-словаре'.
+      PERFORM set_param_text USING s_tab_dl 'Длина (число знаков)'.
+      PERFORM set_param_text USING s_tab_dc 'Число десятичных разрядов'.
 
       PERFORM set_frame_text USING 'RGT' 'Параметры типа таблицы диапазона'.
       PERFORM set_param_text USING s_rgt_nm 'Имя типа таблицы'.
@@ -217,6 +223,9 @@ FORM init_text.
       PERFORM set_param_text USING s_tab_nm 'Table name'.
       PERFORM set_param_text USING s_tab_tx 'Short description'.
       PERFORM set_param_text USING s_tab_rt 'Row type'.
+      PERFORM set_param_text USING s_tab_dt 'Data type'.
+      PERFORM set_param_text USING s_tab_dl 'No. characters'.
+      PERFORM set_param_text USING s_tab_dc 'Decimal places'.
 
       PERFORM set_frame_text USING 'RGT' 'Ranges table parameters'.
       PERFORM set_param_text USING s_rgt_nm 'Ranges table type'.
@@ -607,9 +616,9 @@ FORM search_table.
     LEFT JOIN dd40t ON dd40t~typename EQ dd40l~typename
                    AND dd40t~as4local EQ dd40l~as4local
                    AND dd40t~ddlanguage EQ @p_langu
-    JOIN dd03l  ON dd03l~tabname EQ dd40l~rowtype
-               AND dd03l~as4local EQ dd40l~as4local
-               AND dd03l~as4vers EQ @p_as4ver
+    LEFT JOIN dd03l  ON dd03l~tabname EQ dd40l~rowtype
+                    AND dd03l~as4local EQ dd40l~as4local
+                    AND dd03l~as4vers EQ @p_as4ver
     LEFT JOIN dd02t ON dd02t~tabname EQ dd03l~tabname
                    AND dd02t~as4local EQ dd03l~as4local
                    AND dd02t~as4vers EQ dd03l~as4vers
@@ -626,9 +635,9 @@ FORM search_table.
                && | LEFT JOIN dd40t ON dd40t~typename EQ dd40l~typename      |
                && |                AND dd40t~as4local EQ dd40l~as4local      |
                && |                AND dd40t~ddlanguage EQ @p_langu          |
-               && | JOIN dd03l  ON dd03l~tabname EQ dd40l~rowtype            |
-               && |            AND dd03l~as4local EQ dd40l~as4local          |
-               && |            AND dd03l~as4vers EQ @p_as4ver                |
+               && | LEFT JOIN dd03l ON dd03l~tabname EQ dd40l~rowtype            |
+               && |                AND dd03l~as4local EQ dd40l~as4local          |
+               && |                AND dd03l~as4vers EQ @p_as4ver                |
                && | LEFT JOIN dd02t ON dd02t~tabname EQ dd03l~tabname        |
                && |                AND dd02t~as4local EQ dd03l~as4local      |
                && |                AND dd02t~as4vers EQ dd03l~as4vers        |
@@ -664,6 +673,9 @@ FORM search_table.
     WHERE dd40l~as4local EQ @p_as4loc
       AND dd40l~typename IN @s_tab_nm
       AND dd40l~rowtype IN @s_tab_rt
+      AND dd40l~datatype IN @s_tab_dt
+      AND dd40l~leng IN @s_tab_dl
+      AND dd40l~decimals IN @s_tab_dc
       AND dd40t~ddtext IN @s_tab_tx
       AND tadir~object EQ @lc_object
       AND tadir~devclass IN @s_devcls
@@ -725,7 +737,7 @@ FORM get_struct_clause CHANGING ev_from TYPE clike
         where_clauses = lt_where.
 
     IF line_exists( lt_where[ tablename = lv_tab ] ).
-      ev_where = ev_where && concat_lines_of( table = lt_where[ tablename = lv_tab ]-where_tab sep = space ).
+      ev_where = ev_where && concat_lines_of( table = lt_where[ tablename = lv_tab ]-where_tab sep = | | ).
       ev_where = ev_where && | AND |.
     ENDIF.
   ENDDO.
@@ -758,7 +770,9 @@ FORM get_struct_clause CHANGING ev_from TYPE clike
                         && |  ) AND                                  |.
   ENDIF.
 
-  ev_where = ev_where && | dd03l~tabname IS NOT NULL|.
+  IF ev_where IS NOT INITIAL.
+    ev_where = ev_where && | dd03l~tabname IS NOT NULL|.
+  ENDIF.
 ENDFORM.
 
 FORM get_struct_param USING iv_name TYPE clike
