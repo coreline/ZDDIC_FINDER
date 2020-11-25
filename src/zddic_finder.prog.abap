@@ -94,7 +94,8 @@ SELECTION-SCREEN END OF BLOCK domain_parameters.
 
 SELECTION-SCREEN BEGIN OF BLOCK display_options WITH FRAME TITLE text-dis.
 PARAMETERS p_langu TYPE sy-langu DEFAULT sy-langu.
-PARAMETERS p_limit TYPE i DEFAULT 200.
+PARAMETERS p_rows TYPE i DEFAULT 200.
+PARAMETERS p_limit TYPE i NO-DISPLAY.
 SELECT-OPTIONS s_devcls FOR tadir-devclass NO-EXTENSION NO INTERVALS.
 PARAMETERS p_as4loc TYPE as4local DEFAULT 'A' NO-DISPLAY.  " Запись активирована или создана в этой форме
 PARAMETERS p_as4ver TYPE as4vers DEFAULT '0000' NO-DISPLAY. " Версия записи (не используется)
@@ -182,7 +183,7 @@ FORM init_text.
 
       PERFORM set_frame_text USING 'DIS' 'Параметры поиска'.
       PERFORM set_param_text USING p_langu 'Язык'.
-      PERFORM set_param_text USING p_limit 'Макс. число совпадений'.
+      PERFORM set_param_text USING p_rows 'Макс. число совпадений'.
       PERFORM set_param_text USING s_devcls 'Пакет'.
       PERFORM set_param_text USING p_as4loc 'Статус активации объекта'.
       PERFORM set_param_text USING p_as4ver 'Версия записи'.
@@ -253,7 +254,7 @@ FORM init_text.
 
       PERFORM set_frame_text USING 'DIS' 'Search options'.
       PERFORM set_param_text USING p_langu 'Language'.
-      PERFORM set_param_text USING p_limit 'Maximum No. of Hits'.
+      PERFORM set_param_text USING p_rows 'Maximum No. of Hits'.
       PERFORM set_param_text USING s_devcls 'Package'.
       PERFORM set_param_text USING p_as4loc 'Activation status'.
       PERFORM set_param_text USING p_as4ver 'Version'.
@@ -373,6 +374,7 @@ FORM pai.
 ENDFORM.
 
 FORM main.
+  p_limit = p_rows + 1.
   CASE abap_true.
     WHEN f_ttyp. " Тип таблицы
       PERFORM search_table.
@@ -937,7 +939,14 @@ ENDFORM.
 FORM display USING it_table TYPE STANDARD TABLE.
   STATICS lo_salv TYPE REF TO cl_salv_table.
 
-  MESSAGE |Выбрано записей: { lines( it_table ) }| TYPE rs_c_success.
+  DATA(lv_lines) = lines( it_table ).
+  IF lv_lines EQ p_limit.
+    DELETE it_table INDEX p_limit.
+    MESSAGE s016(es) WITH p_rows. " Выбор ограничен до &1 совпадений.
+  ELSE.
+    MESSAGE s006(sv) WITH lv_lines. " Число выбранных записей: &.
+  ENDIF.
+
   TRY.
       CALL METHOD cl_salv_table=>factory
         IMPORTING

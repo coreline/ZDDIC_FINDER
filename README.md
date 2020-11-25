@@ -9,7 +9,7 @@
 - Ranges
 - Ranges tables
 
- To install the tool create program ZDDIC_FINDER and insert source code into it.
+ To install the tool use [abapGit](https://github.com/abapGit/abapGit/) or create program ZDDIC_FINDER and insert source code into it.
 
 # Examples
 
@@ -30,7 +30,7 @@
 - Структуры диапазонов
 - Тип таблицы диапазона
 
- Для установки просто создай программу ZDDIC_FINDER и вставь в нее код.
+ Для установки воспользуйся [abapGit](https://github.com/abapGit/abapGit/) или просто создай программу ZDDIC_FINDER и вставь в нее код.
 
 # Примеры
 
