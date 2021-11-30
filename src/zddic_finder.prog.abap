@@ -937,7 +937,9 @@ FORM search_range_table.
 ENDFORM.
 
 FORM display USING it_table TYPE STANDARD TABLE.
-  STATICS lo_salv TYPE REF TO cl_salv_table.
+  DATA lo_salv TYPE REF TO cl_salv_table.
+  DATA lt_fieldcat TYPE lvc_t_fcat.
+  DATA ls_layout TYPE lvc_s_layo.
 
   DATA(lv_lines) = lines( it_table ).
   IF lv_lines EQ p_limit.
@@ -954,22 +956,81 @@ FORM display USING it_table TYPE STANDARD TABLE.
         CHANGING
           t_table      = it_table.
 
-      READ TABLE lo_salv->get_columns( )->get( ) INTO DATA(ls_key) INDEX 1.
-      IF sy-subrc EQ 0.
-        CAST cl_salv_column_list( ls_key-r_column )->set_key( abap_true ).
-      ENDIF.
-      LOOP AT lo_salv->get_columns( )->get( ) INTO DATA(ls_sort).
-        lo_salv->get_sorts( )->add_sort( columnname = ls_sort-r_column->get_columnname( ) ).
-        IF ls_sort-r_column->get_columnname( ) EQ 'DEVCLASS'.
-          EXIT.
-        ENDIF.
-      ENDLOOP.
-
-      lo_salv->get_columns( )->set_optimize( abap_true ).
-      lo_salv->get_functions( )->set_all( abap_true ).
-      lo_salv->get_display_settings( )->set_striped_pattern( abap_true ).
-      lo_salv->display( ).
-    CATCH cx_salv_msg INTO DATA(lx_salv).
-      MESSAGE lx_salv TYPE rs_c_info DISPLAY LIKE rs_c_error.
+      lt_fieldcat = cl_salv_controller_metadata=>get_lvc_fieldcatalog(
+          r_columns      = lo_salv->get_columns( )
+          r_aggregations = lo_salv->get_aggregations( ) ).
+    CATCH cx_root INTO DATA(lx_root).
+      MESSAGE lx_root TYPE rs_c_info DISPLAY LIKE rs_c_error.
   ENDTRY.
+
+  ls_layout-sel_mode = 'A'.
+  ls_layout-col_opt = 'X'.
+  ls_layout-cwidth_opt = 'X'.
+  ls_layout-zebra = 'X'.
+
+  LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fieldcat>).
+    <ls_fieldcat>-scrtext_s = <ls_fieldcat>-fieldname.
+    <ls_fieldcat>-scrtext_m = <ls_fieldcat>-fieldname.
+    <ls_fieldcat>-scrtext_l = <ls_fieldcat>-fieldname.
+    <ls_fieldcat>-reptext = <ls_fieldcat>-fieldname.
+    <ls_fieldcat>-colddictxt = 'R'. " Reptext_ddic
+  ENDLOOP.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY_LVC'
+    EXPORTING
+      i_save                  = 'A'
+      is_layout_lvc           = ls_layout
+      it_fieldcat_lvc         = lt_fieldcat
+      i_callback_program      = sy-repid
+      i_callback_user_command = 'USER_COMMAND'
+    TABLES
+      t_outtab                = it_table
+    EXCEPTIONS
+      program_error           = 1
+      OTHERS                  = 2.
+  IF sy-subrc <> 0.
+    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+               WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+  ENDIF.
+ENDFORM.
+
+FORM user_command USING iv_ucomm TYPE sy-ucomm
+                        is_field TYPE slis_selfield.
+  DATA lv_object TYPE trobjtype.
+  DATA lv_obj_name TYPE trobj_name.
+
+  CHECK iv_ucomm EQ '&IC1'. "Double click
+
+  CHECK is_field-tabindex GT 0.
+  CHECK is_field-sumindex EQ 0.
+
+  CASE is_field-fieldname.
+    WHEN 'DEVCLASS'.
+      lv_object = 'DEVC'.
+    WHEN 'TABNAME'.
+      lv_object = 'TABL'.
+    WHEN 'ROWTYPE'.
+      lv_object = 'TABL'.
+    WHEN 'TYPENAME'.
+      lv_object = 'TTYP'.
+    WHEN 'DOMNAME'.
+      lv_object = 'DOMA'.
+    WHEN 'ROLLNAME'.
+      lv_object = 'DTEL'.
+  ENDCASE.
+  CHECK lv_object IS NOT INITIAL.
+  MOVE is_field-value TO lv_obj_name.
+
+  CALL FUNCTION 'TR_OBJECT_JUMP_TO_TOOL'
+    EXPORTING
+      iv_pgmid          = 'R3TR'
+      iv_object         = lv_object
+      iv_obj_name       = lv_obj_name
+    EXCEPTIONS
+      jump_not_possible = 1
+      OTHERS            = 2.
+  IF sy-subrc <> 0.
+    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+            WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+  ENDIF.
 ENDFORM.
